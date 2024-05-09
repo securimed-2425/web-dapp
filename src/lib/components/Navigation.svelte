@@ -1,26 +1,42 @@
 <script lang="ts">
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
-	import { username, user } from '$lib/gun-setup';
+	import { username, usersea, user } from '$lib/gun-setup';
 
 	const drawerStore = getDrawerStore();
 	function drawerClose(): void {
 		drawerStore.close();
 	}
 
+	let firstname: string;
+	let lastname: string;
+
+	user.get( 'securimed' ).get('profile').on( ( data: any, key: string ) => {
+		firstname = data.firstname || '';
+		lastname = data.lastname || '';
+	})
+
 	const signOut = () => {
 		user.leave();
 		username.set('');
+		usersea.set({});
 	}
 </script>
 
 {#if $username}
 	<div class="p-4 flex flex-col justify-between h-full">
-		<h4 class="h4 align-bottom">Good morning,<br /> Dr. {$username}</h4>
+		
+		<h4 class="h4 align-bottom">Good morning,<br /> 
+			{#if firstname || lastname}
+				{[firstname, lastname].join(' ')}
+			{:else}
+			{$username}
+			{/if}
+		</h4>
 		<nav class="list-nav">
 				<ul>
 					<li><a class="my-4" href={`/${$username}`} on:click={drawerClose}>Dashboard</a></li>
 					<li>
-						<a class="my-4" href={`/${$username}/patients`} on:click={drawerClose}>Patients</a>
+						<a class="my-4" href={`/${$username}/peers`} on:click={drawerClose}>Peers</a>
 					</li>
 					<li>
 						<a class="my-4" href={`/${$username}/settings`} on:click={drawerClose}>Settings</a>

@@ -6,7 +6,6 @@
 	initializeStores();
 
 	const toastStore = getToastStore();
-
 	let toastId = '';
 
 	const toastCreate = ( message: string ) => {
@@ -25,24 +24,31 @@
 
 	let username : string;
 	let password : string;
+	let loading = false;
 
-	const login = () => {
+	const login = ( init = false ) => {
+		loading = true;
 		user.auth( username, password, ( { err }: { err: string } ) => {
+			loading = false;
 			if ( err ) {
 				toastCreate( err )
 			} else {
+				if ( init ) {
+					user.get('securimed').put( { profile: { firstname: '', lastname: '' }, rx: { hr: {}}, pr: {}, ac: {} } );
+				}
 				goto( `/${username}` );
 			}
 		} );
 	}
 
 	const signup = () => {
+		loading = true;
 		user.create( username, password, ( { err }: { err: string } ) => {
+			loading = false;
 			if ( err ) {
 				toastCreate( err );
 			} else {
-				// TODO - generate unique id
-				login();
+				login(true);
 			}
 		} );
 	}
@@ -71,8 +77,13 @@
 	</label>
 
 	<div class="row my-8">
-		<button class="btn variant-filled-primary mx-4" on:click={ login } > Login </button>
-		<button class="btn variant-filled-secondary mx-4" on:click={ signup } > Sign Up </button>
+		{#if loading}
+			<p class="h6">Loading...</p>
+		{:else}
+			<button class="btn variant-filled-primary mx-4" on:click={ () => login() } > Login </button>
+			<button class="btn variant-filled-secondary mx-4" on:click={ signup } > Sign Up </button>
+		{/if}
 	</div>
+	
 
 </div>
