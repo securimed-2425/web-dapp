@@ -14,6 +14,7 @@
 		let lastname : string = '';
 		db.user(pk).get( 'alias' ).on( ( data: string ) => {
 			alias = data;
+			console.log( 'list alias', alias );
 		})
 		db.user(pk).get('securimed').get('profile').on( ( data: any ) => {
 			if ( data.firstname ) {
@@ -25,6 +26,7 @@
 		})
 
 		_peers[alias] = {firstname: firstname ?? alias, lastname, pub: pk};
+		console.log( '_peers', )
 		console.log( 'list pk', pk );
 	} );
 

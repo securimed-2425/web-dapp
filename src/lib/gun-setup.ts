@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { GunOptions } from 'gun';
 import Gun from 'gun/gun';
+import 'gun/sea';
 import { writable } from 'svelte/store';
 
-export const db = Gun();
+const gunOptions: GunOptions = {
+  peers: ['https://gun-manhattan.herokuapp.com/gun'],
+};
+
+export const db = Gun(gunOptions);
 export const user = db.user().recall({ sessionStorage: true });
 
 export const username = writable('');

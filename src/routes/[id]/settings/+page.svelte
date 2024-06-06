@@ -38,15 +38,15 @@
 		firstname = data.firstname || '';
 		lastname = data.lastname || '';
 
-		console.log( 'securimed', data, key );
+		// console.log( 'securimed', data, key );
 	} );
 	user.get( 'securimed' ).get('rx').get('hr').map().on( ( data: number, key: number ) => {
 		store[key] = data;
-		console.log( 'data', key, data );
+		// console.log( 'data', key, data );
 	} );
 	user.get( 'securimed' ).get('ac').map().on( ( data: string, key: number ) => {
 		peers[key] = data;
-		console.log( 'peers', key, data );
+		// console.log( 'peers', key, data );
 	} );
 
 
