@@ -36,7 +36,7 @@
 				<ul>
 					<li><a class="my-4" href={`/${$username}`} on:click={drawerClose}>Dashboard</a></li>
 					<li>
-						<a class="my-4" href={`/${$username}/peers`} on:click={drawerClose}>Peers</a>
+						<a class="my-4" href={`/${$username}/trustors`} on:click={drawerClose}>Trustors</a>
 					</li>
 					<li>
 						<a class="my-4" href={`/${$username}/settings`} on:click={drawerClose}>Settings</a>

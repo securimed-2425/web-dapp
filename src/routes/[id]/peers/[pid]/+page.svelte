@@ -5,7 +5,7 @@
 		Table,
 		type PaginationSettings
 	} from '@skeletonlabs/skeleton';
-	import { db, user, username, peerToView } from '$lib/gun-setup';
+	import { db, user, username, trustorToView } from '$lib/gun-setup';
 
 	initializeStores();
 	let source: any[][] = [];
@@ -16,7 +16,7 @@
 		amounts: [1, 2, 5, 10]
 	} satisfies PaginationSettings;
 
-	let peer: { [key: string]: string } = {};
+	let trustor: { [key: string]: string } = {};
 	let profile: { [key: string]: string } = {};
 
 	const customSort = (a: any[], b: any[]): number => {
@@ -25,15 +25,15 @@
 		return dateB - dateA;
 	}
 
-	peerToView.subscribe(async (data) => {
+	trustorToView.subscribe(async (data) => {
 		if (data) {
-			peer = data;
+			trustor = data;
 			source = [];
-			db.user(peer.pub).get('securimed').get('profile').on(( _profile ) => {
+			db.user(trustor.pub).get('securimed').get('profile').on(( _profile ) => {
 				profile.firstname = _profile.firstname ?? '';
 				profile.lastname = _profile.lastname ?? '';
 			});
-			db.user(peer.pub).get('securimed').get('rx').get('hr').map().once((heartrate: number, _key: string) => {
+			db.user(trustor.pub).get('securimed').get('rx').get('hr').map().once((heartrate: number, _key: string) => {
 				// records[_key] = heartrate;
 				const datetime = new Date(Number(_key));
 				source.push([
@@ -60,12 +60,12 @@
 
 <div class="container h-full mx-auto flex justify-start items-start">
 	<div class="space-y-5 w-full">
-		<a type="button" href="/{$username}/peers">
+		<a type="button" href="/{$username}/trustors">
 			<i class="fas fa-arrow-left"></i> Back
 		</a>
 		<h2 class="h2">
 			Patient Info:
-			 {#if profile}{profile?.firstname ?? peer.alias} {profile?.lastname}{/if}
+			 {#if profile}{profile?.firstname ?? trustor.alias} {profile?.lastname}{/if}
 		</h2>
 		{#if source.length}
 			<Table

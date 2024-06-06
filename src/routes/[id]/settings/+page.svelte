@@ -31,8 +31,8 @@
 	let lastname: string;
 	let saving: boolean = false;
 	let adding: boolean = false;
-	let peers: { [key: number]: string } = {};
-	let peerToAdd: string;
+	let trustees: { [key: number]: string } = {};
+	let trusteeToAdd: string;
 	
 	user.get( 'securimed' ).get('profile').on( ( data: any, key: string ) => {
 		firstname = data.firstname || '';
@@ -45,8 +45,8 @@
 		// console.log( 'data', key, data );
 	} );
 	user.get( 'securimed' ).get('ac').map().on( ( data: string, key: number ) => {
-		peers[key] = data;
-		// console.log( 'peers', key, data );
+		trustees[key] = data;
+		// console.log( 'trustees', key, data );
 	} );
 
 
@@ -73,19 +73,19 @@
 		});
 	}
 
-	const addPeer = () => {
+	const addTrustee = () => {
 		adding = true;
 		const datetime = new Date().valueOf();
 		const data: { [key: number]: string } = {};
-		data[datetime] = peerToAdd;
+		data[datetime] = trusteeToAdd;
 		user.get( 'securimed' ).get('ac').put( data ).then( () => {
-			toastCreate( 'Peer granted access!' );
+			toastCreate( 'Trustee granted access!' );
 			adding = false;
 		});
 	}
 
 	$: heartrates = Object.entries(store).sort(( a: any, b: any ) => a[0] - b[0] );
-	$: _peers = Object.entries(peers).sort(( a: any, b: any ) => a[0] - b[0] );
+	$: _trustees = Object.entries(trustees).sort(( a: any, b: any ) => a[0] - b[0] );
 	
 </script>
 
@@ -109,22 +109,22 @@
 					<input class="input" type="text" placeholder="last name" bind:value={lastname} on:blur={updateLastName}/>
 				</label>
 			</div>
-			<h3 class="h3">Trusted Peers</h3>
+			<h3 class="h3">Trustees</h3>
 			<div class="ml-8 my-4">
 				<div class="flex row gap-4 items-center pb-4 border-b border-b-white-200">
-					<p> View Trusted Peers with access to your health records: </p>
-					<!-- TODO: Add onclick function to view peers' public key with option to remove -->
-					<button class="btn variant-filled-secondary" on:click={ () => console.log( 'peers', _peers ) } > View </button>
+					<p> View Trustees with access to your health records: </p>
+					<!-- TODO: Add onclick function to view trustees' public key with option to remove -->
+					<button class="btn variant-filled-secondary" on:click={ () => console.log( 'trustees', _trustees ) } > View </button>
 					
 				</div>
 				<label class="label my-4">
-					<span>Add Public Key of Peer to Grant Access</span>
-					<input class="input" type="text" placeholder="Public Key" bind:value={peerToAdd} on:blur={updateFirstName}/>
+					<span>Add Public Key of Trustee to Grant Access</span>
+					<input class="input" type="text" placeholder="Public Key" bind:value={trusteeToAdd} on:blur={updateFirstName}/>
 				</label>
 				{#if adding}
 					<p class="h6">Adding...</p>
 				{:else}
-					<button class="btn variant-filled-secondary" on:click={ addPeer } > Add </button>
+					<button class="btn variant-filled-secondary" on:click={ addTrustee } > Add </button>
 				{/if}
 			</div>
 			

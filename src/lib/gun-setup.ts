@@ -13,7 +13,7 @@ export const user = db.user().recall({ sessionStorage: true });
 
 export const username = writable('');
 export const usersea = writable({});
-export const peerToView = writable({});
+export const trustorToView = writable({});
 
 db.on( 'auth', async () => {
     const alias = await user.get( 'alias' );

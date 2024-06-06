@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import { writable } from 'svelte/store';
-	import { db, user, username, peerToView } from '$lib/gun-setup';
+	import { db, user, username, trustorToView } from '$lib/gun-setup';
 
 	initializeStores();
-	let peerToAdd: string;
-	let _peers: { [key: string]: any } = {};
+	let trustorToAdd: string;
+	let _trustors: { [key: string]: any } = {};
 	let adding: boolean = false;
 
 	user.get( 'securimed' ).get('pr' ).map().on( ( pk: string ) => {
@@ -25,47 +25,47 @@
 			}
 		})
 
-		_peers[alias] = {firstname: firstname ?? alias, lastname, pub: pk};
-		console.log( '_peers', )
+		_trustors[alias] = {firstname: firstname ?? alias, lastname, pub: pk};
+		console.log( '_trustors', )
 		console.log( 'list pk', pk );
 	} );
 
-	const addPeer = () => {
+	const addTrustor = () => {
 		adding = true;
 		const datetime = new Date().valueOf();
 		const data: { [key: number]: string } = {};
-		data[datetime] = peerToAdd;
+		data[datetime] = trustorToAdd;
 		user.get( 'securimed' ).get('pr').put( data ).then( () => {
 			// TODO: check if has access (refer to SEA API in GUN DOCS)
-			console.log( 'peer added' );
-			peerToAdd = '';
+			console.log( 'trustor added' );
+			trustorToAdd = '';
 			adding = false;
 		});
 	}
 
-	const setPeer = ( alias: string, pk: string ) => {
-		peerToView.set( {alias: alias, pub: pk} );
+	const setTrustor = ( alias: string, pk: string ) => {
+		trustorToView.set( {alias: alias, pub: pk} );
 	}
 
-	$: peers = Object.entries(_peers).sort(( a: any, b: any ) => a[0] - b[0] );
-	console.log( 'peers', _peers );
+	$: trustors = Object.entries(_trustors).sort(( a: any, b: any ) => a[0] - b[0] );
+	console.log( 'trustors', _trustors );
 </script>
 
 <div class="container h-full mx-auto flex justify-start items-start">
 	<div class="space-y-5 w-full">
-		<h2 class="h2 pb-4 border-b border-b-white-200"> Peers </h2>
+		<h2 class="h2 pb-4 border-b border-b-white-200"> Trustor </h2>
 				<label class="label my-4">
-					<span>Add Public Key of Peer to View Records</span>
+					<span>Add Public Key of Trustor to View Records</span>
 					<div class="flex row gap-8">
-						<input class="input" type="text" placeholder="Public Key" bind:value={peerToAdd} />
+						<input class="input" type="text" placeholder="Public Key" bind:value={trustorToAdd} />
 						{#if adding}
 							<p class="h6">Adding...</p>
 						{:else}
-							<button class="btn variant-filled-secondary"  on:click={ addPeer } > Add Peer </button>
+							<button class="btn variant-filled-secondary"  on:click={ addTrustor } > Add Trustor </button>
 						{/if}
 					</div>
 				</label>
-		{#if peers && peers.length !== 0}
+		{#if trustors && trustors.length !== 0}
 		<div class="table-container">
 			<table class="table table-hover">
 				<thead>
@@ -76,12 +76,12 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each peers as peer}
+					{#each trustors as trustor}
 					<tr class="text-center">
-						<td class="align-middle">{peer[1].lastname}</td>
-						<td class="align-middle">{peer[1].firstname}</td>
+						<td class="align-middle">{trustor[1].lastname}</td>
+						<td class="align-middle">{trustor[1].firstname}</td>
 						<td>
-							<a href="/{$username}/peers/{peer[0]}" type="button" on:click={ () => setPeer( peer[0], peer[1].pub ) } class="btn btn-sm variant-filled">View Records</a>
+							<a href="/{$username}/trustors/{trustor[0]}" type="button" on:click={ () => setTrustor( trustor[0], trustor[1].pub ) } class="btn btn-sm variant-filled">View Records</a>
 						</td>
 					</tr>
 					{/each}
