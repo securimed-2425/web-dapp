@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { initializeStores, Toast, getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 	import type { PageData } from './$types';
-	import { user } from '$lib/gun-setup';
+	import { user, db, getSCMRooms, getUserEPub } from '$lib/gun-setup';
 	import SEA from 'gun/sea';
 
 	// export let data: PageData;
@@ -25,13 +25,13 @@
 		toastStore.close(toastId);
 	}
 
-	let store : {[key: number]: number} = {};
+	let store : {[key: number]: string} = {};
 	let hr : number;
 	let firstname: string;
 	let lastname: string;
 	let saving: boolean = false;
 	let adding: boolean = false;
-	let trustees: { [key: number]: string } = {};
+	let trustees: { [key: string]: {} } = {};
 	let trusteeToAdd: string;
 	
 	user.get( 'securimed' ).get('profile').on( ( data: any, key: string ) => {
@@ -40,21 +40,37 @@
 
 		// console.log( 'securimed', data, key );
 	} );
-	user.get( 'securimed' ).get('rx').get('hr').map().on( ( data: number, key: number ) => {
-		store[key] = data;
-		// console.log( 'data', key, data );
-	} );
-	user.get( 'securimed' ).get('ac').map().on( ( data: string, key: number ) => {
-		trustees[key] = data;
-		// console.log( 'trustees', key, data );
+	// user.get( 'securimed' ).get('recs').get('hr').map().on( async ( data: string, key: number ) => {
+	// 	const roompair = getSCMRooms();
+	// 	const val = await SEA.decrypt(data, roompair);
+	// 	store[key] = val;
+	// 	// console.log( 'data', key, data );
+	// } );
+	user.get( 'securimed' ).get('trs').map().on( async ( data: string, key: string ) => {
+		const trusteeEPub = getUserEPub( key );
+		const secret = await SEA.secret(trusteeEPub, user._.sea) || '';
+		if ( !secret ) {
+			console.log('cannot get trustee', key);
+			return;
+		}
+		
+		const dec = await SEA.decrypt(data, secret);
+		let alias = '';
+		db.user(key).get('alias').once( ( t_alias: string ) => {
+			console.log( 'alias', t_alias);
+			alias = t_alias;
+		});
+		trustees[key] = {alias, roompair: dec};
+		console.log( 'trustees', key, alias, dec );
 	} );
 
-
-	// const add = () => {
+	// const add = async () => {
 	// 	const datetime = new Date().valueOf();
-	// 	const data : {[key: number]: number}= {};
-	// 	data[datetime] = hr;
-	// 	user.get('securimed').get('rx').get('hr').put(data);
+	// 	const data : {[key: number]: string}= {};
+	// 	const roompair = getSCMRooms();
+	// 	const enc = await SEA.encrypt( hr, roompair );
+	// 	data[datetime] = enc;
+	// 	user.get('securimed').get('recs').get('hr').put(data);
 	// }
 
 	const updateFirstName = () => {
@@ -73,18 +89,29 @@
 		});
 	}
 
-	const addTrustee = () => {
+	const addTrustee = async () => {
 		adding = true;
-		const datetime = new Date().valueOf();
-		const data: { [key: number]: string } = {};
-		data[datetime] = trusteeToAdd;
-		user.get( 'securimed' ).get('ac').put( data ).then( () => {
+		const data: { [key: string]: string } = {};
+		const roompair = getSCMRooms();
+		console.log( 'roompair', roompair );
+		const trusteeEPub = getUserEPub(trusteeToAdd);
+		console.log( 'trusteeEPub', trusteeEPub );
+		const secret : string  = await SEA.secret( trusteeEPub, user._.sea ) || '';
+		if ( !secret ) {
+			toastCreate( 'Trustee not found!' );
+			adding = false;
+			return;
+		}
+		const enc = await SEA.encrypt( roompair, secret );
+		data[trusteeToAdd] = enc;
+		
+		user.get( 'securimed' ).get('trs').put( data ).then( () => {
 			toastCreate( 'Trustee granted access!' );
 			adding = false;
 		});
 	}
 
-	$: heartrates = Object.entries(store).sort(( a: any, b: any ) => a[0] - b[0] );
+	// $: heartrates = Object.entries(store).sort(( a: any, b: any ) => a[0] - b[0] );
 	$: _trustees = Object.entries(trustees).sort(( a: any, b: any ) => a[0] - b[0] );
 	
 </script>
@@ -119,7 +146,7 @@
 				</div>
 				<label class="label my-4">
 					<span>Add Public Key of Trustee to Grant Access</span>
-					<input class="input" type="text" placeholder="Public Key" bind:value={trusteeToAdd} on:blur={updateFirstName}/>
+					<input class="input" type="text" placeholder="Public Key" bind:value={trusteeToAdd}/>
 				</label>
 				{#if adding}
 					<p class="h6">Adding...</p>
@@ -132,8 +159,8 @@
 			<!-- <label class="label">
 				<span>HR</span>
 				<input class="input" type="number" placeholder="first name" name="hr" bind:value={hr}/>
-			</label> -->
-			<!-- <button class="btn variant-filled-secondary mx-4" on:click={ add } > Add </button>
+			</label>
+			<button class="btn variant-filled-secondary mx-4" on:click={ add } > Add </button>
 			<h3>Heartrates</h3>
 			{#each heartrates as [key, value]}
 			<div>{key} : {value}</div>

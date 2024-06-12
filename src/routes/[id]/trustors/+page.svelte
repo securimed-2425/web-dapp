@@ -1,14 +1,19 @@
 <script lang="ts">
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import { writable } from 'svelte/store';
-	import { db, user, username, trustorToView } from '$lib/gun-setup';
+	import { db, user, username, trustorToView, getUserEPub } from '$lib/gun-setup';
+	import SEA from 'gun/sea';
 
 	initializeStores();
 	let trustorToAdd: string;
 	let _trustors: { [key: string]: any } = {};
 	let adding: boolean = false;
 
-	user.get( 'securimed' ).get('pr' ).map().on( ( pk: string ) => {
+	user.get( 'securimed' ).get('tre' ).map().on( async ( data: string ) => {
+		const dec = await SEA.decrypt( data, user._.sea );
+		const trustee = dec;
+		const { pubkey: pk, roomkey } = trustee;
+
 		let alias : string = '';
 		let firstname : string = '';
 		let lastname : string = '';
@@ -25,26 +30,57 @@
 			}
 		})
 
-		_trustors[alias] = {firstname: firstname ?? alias, lastname, pub: pk};
+		_trustors[alias] = {firstname: firstname ?? alias, lastname, pub: pk, roomkey: roomkey};
 		console.log( '_trustors', )
-		console.log( 'list pk', pk );
+		console.log( 'list roomkey', roomkey );
 	} );
 
-	const addTrustor = () => {
+	const addTrustor = async () => {
 		adding = true;
-		const datetime = new Date().valueOf();
-		const data: { [key: number]: string } = {};
-		data[datetime] = trustorToAdd;
-		user.get( 'securimed' ).get('pr').put( data ).then( () => {
-			// TODO: check if has access (refer to SEA API in GUN DOCS)
-			console.log( 'trustor added' );
-			trustorToAdd = '';
+		user.get( 'securimed' ).get( 'tre' ).get( trustorToAdd ).then( ( data: any ) => {
+			if ( data ) {
+				// TODO: create toast
+				console.log( 'already added' );
+				adding = false;
+				return;
+			}
+		});
+		const trustorEPub = getUserEPub( trustorToAdd );
+		console.log( 'trustorEPub', trustorEPub );
+		const secret : string  = await SEA.secret( trustorEPub, user._.sea ) || '';
+		if ( !secret ) {
+			// TODO: create toast
+			// toastCreate( 'Trustee not found!' );
+			console.log( 'Trustor not found!' );
 			adding = false;
+			return;
+		}
+
+		db.user( trustorToAdd ).get( 'securimed' ).get( 'trs' ).get( user._.sea.pub ).then( async ( encrypted_roomkey: string ) => {
+			if ( encrypted_roomkey ) {
+				console.log( 'is a trustee' );
+				const roomkey = await SEA.decrypt( encrypted_roomkey, secret );
+				const value = { pubkey: trustorToAdd, roomkey: roomkey };
+				const stringified = JSON.stringify( value );
+				const encrypted_trustor = await SEA.encrypt( stringified, user._.sea );
+				const datetime = new Date().valueOf();
+				const data: { [key: number]: string } = {};
+				data[datetime] = encrypted_trustor;
+				user.get( 'securimed' ).get( 'tre' ).put( data ).then( () => {
+					// TODO: create toast
+					console.log( 'trustor added' );
+					trustorToAdd = '';
+					adding = false;
+				});
+			} else {
+				// TODO: create toast
+				console.log( 'is not a trustee' );
+			}
 		});
 	}
 
-	const setTrustor = ( alias: string, pk: string ) => {
-		trustorToView.set( {alias: alias, pub: pk} );
+	const setTrustor = ( alias: string, pk: string, roomkey: string ) => {
+		trustorToView.set( {alias: alias, pub: pk, roomkey: roomkey} );
 	}
 
 	$: trustors = Object.entries(_trustors).sort(( a: any, b: any ) => a[0] - b[0] );
@@ -81,7 +117,7 @@
 						<td class="align-middle">{trustor[1].lastname}</td>
 						<td class="align-middle">{trustor[1].firstname}</td>
 						<td>
-							<a href="/{$username}/trustors/{trustor[0]}" type="button" on:click={ () => setTrustor( trustor[0], trustor[1].pub ) } class="btn btn-sm variant-filled">View Records</a>
+							<a href="/{$username}/trustors/{trustor[0]}" type="button" on:click={ () => setTrustor( trustor[0], trustor[1].pub, trustor[1].roomkey ) } class="btn btn-sm variant-filled">View Records</a>
 						</td>
 					</tr>
 					{/each}
