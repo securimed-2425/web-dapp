@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { user, getSCMRooms } from '$lib/gun-setup';
 	import SEA from 'gun/sea';
-
+	import { fly } from 'svelte/transition';
 	let store: { [key: number]: string } = {};
 
 	user
@@ -38,7 +38,10 @@
 	$: heartrates = Object.entries(store).sort((a: any, b: any) => a[0] - b[0]);
 </script>
 
-<div class="container h-full mx-auto flex justify-start items-start">
+<div
+	class="container h-full mx-auto flex justify-start items-start"
+	in:fly={{ x: -20, duration: 300 }}
+>
 	<div class="space-y-5 w-full">
 		<h2 class="h2">Dashboard</h2>
 		<div class="table-container">

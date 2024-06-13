@@ -2,7 +2,7 @@
 	import '../../app.postcss';
 	import { page } from '$app/stores';
 	import { username } from '$lib/gun-setup';
-
+	import { fly } from 'svelte/transition';
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import {
@@ -50,6 +50,7 @@
 		} else {
 			title = 'SecuriMed';
 		}
+		console.log(title);
 	}
 </script>
 
@@ -97,7 +98,6 @@
 	<svelte:fragment slot="sidebarLeft">
 		<Navigation />
 	</svelte:fragment>
-	<!-- TODO: add fly transition -->
 	<div class="container p-10 mx-auto">
 		<slot />
 	</div>

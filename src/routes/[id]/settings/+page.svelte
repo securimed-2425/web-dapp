@@ -12,6 +12,7 @@
 	import { user, db, getSCMRooms, getUserEPub, usersea } from '$lib/gun-setup';
 	import ModalTable from '$lib/components/ModalTable.svelte';
 	import SEA from 'gun/sea';
+	import { fly } from 'svelte/transition';
 	initializeStores();
 
 	const modalStore = getModalStore();
@@ -62,13 +63,17 @@
 
 			// console.log( 'securimed', data, key );
 		});
-	user.get( 'securimed' ).get('recs').get('testhr1').map().on( async ( data: string, key: number ) => {
-		const roompair = getSCMRooms();
-		const val = await SEA.decrypt(data, roompair);
-		store[key] = val;
-		// console.log( 'data', key, data );
-	} );
-	
+	user
+		.get('securimed')
+		.get('recs')
+		.get('testhr1')
+		.map()
+		.on(async (data: string, key: number) => {
+			const roompair = getSCMRooms();
+			const val = await SEA.decrypt(data, roompair);
+			store[key] = val;
+			// console.log( 'data', key, data );
+		});
 
 	// const add = async () => {
 	// 	const datetime = new Date().valueOf();
@@ -132,17 +137,20 @@
 	};
 
 	const copyPubKey = () => {
-		navigator.clipboard.writeText( user._.sea.pub );
-		toastCreate( 'Public key copied!' );
-	}
+		navigator.clipboard.writeText(user._.sea.pub);
+		toastCreate('Public key copied!');
+	};
 
-	$: heartrates = Object.entries(store).sort(( a: any, b: any ) => a[0] - b[0] );
+	$: heartrates = Object.entries(store).sort((a: any, b: any) => a[0] - b[0]);
 	// $: _trustees = Object.entries(trustees).sort(( a: any, b: any ) => a[0] - b[0] );
 </script>
 
 <Toast />
 <Modal />
-<div class="container h-full mx-auto flex justify-start items-start">
+<div
+	class="container h-full mx-auto flex justify-start items-start"
+	in:fly={{ x: -20, duration: 300 }}
+>
 	<div class="space-y-5">
 		<h2 class="h2">Settings</h2>
 		<div>
@@ -175,7 +183,15 @@
 			<div class="ml-8 my-4">
 				<label class="label my-4">
 					<span>My Public Key</span>
-					<input class="input active:text-gray-400" style="cursor: copy !important;" type="text" placeholder="first name" bind:value={$usersea.pub} readonly on:click={ copyPubKey }/>
+					<input
+						class="input active:text-gray-400"
+						style="cursor: copy !important;"
+						type="text"
+						placeholder="first name"
+						bind:value={$usersea.pub}
+						readonly
+						on:click={copyPubKey}
+					/>
 				</label>
 			</div>
 			<h3 class="h3">Trustees</h3>
@@ -204,8 +220,6 @@
 			{#each heartrates as [key, value]}
 			<div>{key} : {value}</div>
 			{/each} -->
-			
-					
 		</div>
 	</div>
 </div>

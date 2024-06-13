@@ -7,6 +7,7 @@
 	} from '@skeletonlabs/skeleton';
 	import { db, user, username, trustorToView, getUserEPub } from '$lib/gun-setup';
 	import SEA from 'gun/sea';
+	import { fly } from 'svelte/transition';
 
 	initializeStores();
 	const toastStore = getToastStore();
@@ -150,7 +151,10 @@
 </script>
 
 <Toast />
-<div class="container h-full mx-auto flex justify-start items-start">
+<div
+	class="container h-full mx-auto flex justify-start items-start"
+	in:fly={{ x: -20, duration: 300 }}
+>
 	<div class="space-y-5 w-full">
 		<h2 class="h2 pb-4 border-b border-b-white-200">Trustor</h2>
 		<label class="label my-4">
