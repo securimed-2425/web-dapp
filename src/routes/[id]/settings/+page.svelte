@@ -9,7 +9,7 @@
 		type ModalSettings,
 		type ModalComponent
 	} from '@skeletonlabs/skeleton';
-	import { user, db, getSCMRooms, getUserEPub } from '$lib/gun-setup';
+	import { user, db, getSCMRooms, getUserEPub, usersea } from '$lib/gun-setup';
 	import ModalTable from '$lib/components/ModalTable.svelte';
 	import SEA from 'gun/sea';
 	initializeStores();
@@ -62,35 +62,13 @@
 
 			// console.log( 'securimed', data, key );
 		});
-	// user.get( 'securimed' ).get('recs').get('hr').map().on( async ( data: string, key: number ) => {
-	// 	const roompair = getSCMRooms();
-	// 	const val = await SEA.decrypt(data, roompair);
-	// 	store[key] = val;
-	// 	// console.log( 'data', key, data );
-	// } );
-	user
-		.get('securimed')
-		.get('trs')
-		.map()
-		.on(async (data: string, key: string) => {
-			const trusteeEPub = getUserEPub(key);
-			const secret = (await SEA.secret(trusteeEPub, user._.sea)) || '';
-			if (!secret) {
-				console.log('cannot get trustee', key);
-				return;
-			}
-
-			const dec = await SEA.decrypt(data, secret);
-			let alias = '';
-			db.user(key)
-				.get('alias')
-				.once((t_alias: string) => {
-					console.log('alias', t_alias);
-					alias = t_alias;
-				});
-			trustees[key] = { alias, roompair: dec };
-			console.log('trustees', key, alias, dec);
-		});
+	user.get( 'securimed' ).get('recs').get('testhr1').map().on( async ( data: string, key: number ) => {
+		const roompair = getSCMRooms();
+		const val = await SEA.decrypt(data, roompair);
+		store[key] = val;
+		// console.log( 'data', key, data );
+	} );
+	
 
 	// const add = async () => {
 	// 	const datetime = new Date().valueOf();
@@ -153,8 +131,13 @@
 			});
 	};
 
-	// $: heartrates = Object.entries(store).sort(( a: any, b: any ) => a[0] - b[0] );
-	$: _trustees = Object.entries(trustees).sort((a: any, b: any) => a[0] - b[0]);
+	const copyPubKey = () => {
+		navigator.clipboard.writeText( user._.sea.pub );
+		toastCreate( 'Public key copied!' );
+	}
+
+	$: heartrates = Object.entries(store).sort(( a: any, b: any ) => a[0] - b[0] );
+	// $: _trustees = Object.entries(trustees).sort(( a: any, b: any ) => a[0] - b[0] );
 </script>
 
 <Toast />
@@ -189,6 +172,12 @@
 					/>
 				</label>
 			</div>
+			<div class="ml-8 my-4">
+				<label class="label my-4">
+					<span>My Public Key</span>
+					<input class="input active:text-gray-400" style="cursor: copy !important;" type="text" placeholder="first name" bind:value={$usersea.pub} readonly on:click={ copyPubKey }/>
+				</label>
+			</div>
 			<h3 class="h3">Trustees</h3>
 			<div class="ml-8 my-4">
 				<div class="flex row gap-4 items-center pb-4 border-b border-b-white-200">
@@ -210,11 +199,13 @@
 				<span>HR</span>
 				<input class="input" type="number" placeholder="first name" name="hr" bind:value={hr}/>
 			</label>
-			<button class="btn variant-filled-secondary mx-4" on:click={ add } > Add </button>
-			<h3>Heartrates</h3>
+			<button class="btn variant-filled-secondary mx-4" on:click={ add } > Add </button> -->
+			<!-- <h3>Heartrates</h3>
 			{#each heartrates as [key, value]}
 			<div>{key} : {value}</div>
 			{/each} -->
+			
+					
 		</div>
 	</div>
 </div>
