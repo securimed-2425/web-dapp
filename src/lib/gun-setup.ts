@@ -3,6 +3,7 @@ import type { GunOptions } from 'gun';
 import Gun from 'gun/gun';
 import SEA from 'gun/sea';
 import { writable } from 'svelte/store';
+import type { Writable } from 'svelte/store';
 
 const gunOptions: GunOptions = {
   peers: ['https://gun-manhattan.herokuapp.com/gun'],
@@ -12,7 +13,7 @@ export const db = Gun(gunOptions);
 export const user = db.user().recall({ sessionStorage: true });
 
 export const username = writable('');
-export const usersea = writable({});
+export const usersea : Writable<{ [key: string]: any }>= writable({});
 export const scmroom = writable({});
 export const trustorToView = writable({});
 
@@ -31,11 +32,12 @@ db.on( 'auth', async () => {
         const enc_pair = await SEA.encrypt( keypair, user._.sea );
         user.get( 'securimed' ).get( 'scmroom' ).get('hr').put( enc_pair );
         scmroom.set( keypair );
+        console.log( 'scmroom created', keypair );
       } else {
         console.log( 'pair', data );
         const dec = await SEA.decrypt( data, user._.sea );
-        console.log( 'dec', dec );
         scmroom.set( dec );
+        console.log( 'scmroom retrieved', dec );
       }
     });
 } );

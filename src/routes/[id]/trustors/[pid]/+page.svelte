@@ -38,25 +38,31 @@
 				profile.firstname = _profile.firstname ?? '';
 				profile.lastname = _profile.lastname ?? '';
 			});
-			db.user(trustor.pub).get('securimed').get('recs').get('hr').map().once( async (enc_hr: string, _key: string) => {
+			db.user(trustor.pub).get('securimed').get('recs').get('testhr1').map().once( async (enc_hr: string, _key: string) => {
 				const heartrate = await SEA.decrypt(enc_hr, trustor.roomkey);
 				if (!heartrate) {
 					console.log('could not retrieve data', heartrate);
-					return;
-				}
-				const datetime = new Date(Number(_key));
-				source.push([
-					datetime.toLocaleDateString(undefined, {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					}),
-					datetime.toLocaleTimeString(),
-					heartrate
-				])
+				} else {
+					const datetime = new Date(Number(_key));
+					source.push([
+						datetime.toLocaleDateString(undefined, {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
+						}),
+						datetime.toLocaleTimeString(),
+						heartrate
+					])
 
-				console.table( source );
-				sourceStore.set(source);
+					// console.table( source );
+					sourceStore.set(source);
+					paginationSettings = {
+						page: 0,
+						limit: 5,
+						size: source.length,
+						amounts: [1, 2, 5, 10]
+					} satisfies PaginationSettings;
+				}
 			});
 		}
 	});
@@ -66,7 +72,7 @@
 		paginationSettings.page * paginationSettings.limit,
 		paginationSettings.page * paginationSettings.limit + paginationSettings.limit
 	);
-	console.log( $sourceStore.length, $sourceStore );
+	// console.log( $sourceStore.length, $sourceStore );
 </script>
 
 <div class="container h-full mx-auto flex justify-start items-start">

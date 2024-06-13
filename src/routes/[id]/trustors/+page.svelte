@@ -75,6 +75,7 @@
 			} else {
 				// TODO: create toast
 				console.log( 'is not a trustee' );
+				adding = false;
 			}
 		});
 	}
@@ -113,13 +114,15 @@
 				</thead>
 				<tbody>
 					{#each trustors as trustor}
-					<tr class="text-center">
-						<td class="align-middle">{trustor[1].lastname}</td>
-						<td class="align-middle">{trustor[1].firstname}</td>
-						<td>
-							<a href="/{$username}/trustors/{trustor[0]}" type="button" on:click={ () => setTrustor( trustor[0], trustor[1].pub, trustor[1].roomkey ) } class="btn btn-sm variant-filled">View Records</a>
-						</td>
-					</tr>
+					{#if trustor[0] !== 'undefined' || trustor[0] !== null || trustor[0] !== ''}
+						<tr class="text-center">
+							<td class="align-middle">{trustor[1].lastname}</td>
+							<td class="align-middle">{trustor[1].firstname}</td>
+							<td>
+								<a href="/{$username}/trustors/{trustor[0]}" type="button" on:click={ () => setTrustor( trustor[0], trustor[1].pub, trustor[1].roomkey ) } class="btn btn-sm variant-filled">View Records</a>
+							</td>
+						</tr>
+					{/if}
 					{/each}
 				</tbody>
 			</table>
