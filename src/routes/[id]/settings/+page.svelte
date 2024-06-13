@@ -193,7 +193,6 @@
 			<div class="ml-8 my-4">
 				<div class="flex row gap-4 items-center pb-4 border-b border-b-white-200">
 					<p>View Trustees with access to your health records:</p>
-					<!-- TODO: Add onclick function to view trustees' public key with option to remove -->
 					<button class="btn variant-filled-secondary" on:click={viewTrustees}>View</button>
 				</div>
 				<label class="label my-4">

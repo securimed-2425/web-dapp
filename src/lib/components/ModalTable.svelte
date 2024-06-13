@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { SvelteComponent } from 'svelte';
+	import { Trash2 } from 'lucide-svelte';
 
 	// Stores
 	import { getModalStore } from '@skeletonlabs/skeleton';
@@ -19,6 +20,11 @@
 		{ firstName: 'Alquen', lastName: 'Sarmiento', alias: 'Alquen' },
 		{ firstName: 'Angelo', lastName: 'Convento', alias: 'Gelo' }
 	];
+
+	// removeRow function not persistent
+	function removeRow(index: number) {
+		tableArr = tableArr.filter((_, i) => i !== index);
+	}
 </script>
 
 <!-- @component This example creates a simple form modal. -->
@@ -38,6 +44,7 @@
 						<th>First Name</th>
 						<th>Last Name</th>
 						<th>Alias</th>
+						<th>Action</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -46,6 +53,7 @@
 							<td>{row.firstName}</td>
 							<td>{row.lastName}</td>
 							<td>{row.alias}</td>
+							<td><button on:click={() => removeRow(i)}><Trash2 /></button></td>
 						</tr>
 					{/each}
 				</tbody>
