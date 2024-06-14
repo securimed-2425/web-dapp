@@ -72,7 +72,7 @@
 			const roompair = getSCMRooms();
 			const val = await SEA.decrypt(data, roompair);
 			store[key] = val;
-			// console.log( 'data', key, data );
+			console.log( 'data', key, val );
 		});
 
 	// const add = async () => {
@@ -120,6 +120,7 @@
 		const secret: string = (await SEA.secret(trusteeEPub, user._.sea)) || '';
 		if (!secret) {
 			toastCreate('Trustee not found!');
+			trusteeToAdd = '';
 			adding = false;
 			return;
 		}
@@ -132,6 +133,7 @@
 			.put(data)
 			.then(() => {
 				toastCreate('Trustee granted access!');
+				trusteeToAdd = '';
 				adding = false;
 			});
 	};

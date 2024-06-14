@@ -6,7 +6,7 @@
 
 	user
 		.get('securimed')
-		.get('recs')
+		.get('rex')
 		.get('hr')
 		.map()
 		.on(async (data: string, key: number) => {
