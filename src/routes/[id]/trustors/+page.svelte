@@ -57,7 +57,7 @@
 
 	user
 		.get('securimed')
-		.get('tre')
+		.get('scmtrstr')
 		.map()
 		.on(async (data: string) => {
 			const dec = await SEA.decrypt(data, user._.sea);
@@ -94,7 +94,7 @@
 		adding = true;
 		user
 			.get('securimed')
-			.get('tre')
+			.get('scmtrstr')
 			.get(trustorToAdd)
 			.then((data: any) => {
 				if (data) {
@@ -114,7 +114,7 @@
 
 		db.user(trustorToAdd)
 			.get('securimed')
-			.get('trs')
+			.get('scmtrste')
 			.get(user._.sea.pub)
 			.then(async (encrypted_roomkey: string) => {
 				if (encrypted_roomkey) {
@@ -128,7 +128,7 @@
 					data[datetime] = encrypted_trustor;
 					user
 						.get('securimed')
-						.get('tre')
+						.get('scmtrstr')
 						.put(data)
 						.then(() => {
 							toastTrustorAdded();

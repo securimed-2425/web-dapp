@@ -65,8 +65,8 @@
 		});
 	user
 		.get('securimed')
-		.get('recs')
-		.get('testhr1')
+		.get('rex')
+		.get('hr')
 		.map()
 		.on(async (data: string, key: number) => {
 			const roompair = getSCMRooms();
@@ -128,7 +128,7 @@
 
 		user
 			.get('securimed')
-			.get('trs')
+			.get('scmtrste')
 			.put(data)
 			.then(() => {
 				toastCreate('Trustee granted access!');

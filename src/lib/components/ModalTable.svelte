@@ -20,9 +20,9 @@
 	const cHeader = 'text-2xl font-bold';
 
 	let trustees: { [key: string]: { alias: string; firstname: string; lastname: string } } = {};
-	const trusteeStore : Writable<{ [key: string]: { [key: string] : any } }> = writable([]);
+	const trusteeStore : Writable<{ [key: string]: { [key: string] : any } }> = writable({});
 
-	user.get('securimed').get('trs').map().on(async (data: string, key: string) => {
+	user.get('securimed').get('scmtrste').map().on(async (data: string, key: string) => {
 		if ( data ) {
 			const trusteeEPub = getUserEPub(key);
 			const secret = (await SEA.secret(trusteeEPub, user._.sea)) || '';

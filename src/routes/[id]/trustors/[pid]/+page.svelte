@@ -38,7 +38,7 @@
 				profile.firstname = _profile.firstname ?? '';
 				profile.lastname = _profile.lastname ?? '';
 			});
-			db.user(trustor.pub).get('securimed').get('recs').get('testhr1').map().once( async (enc_hr: string, _key: string) => {
+			db.user(trustor.pub).get('securimed').get('rex').get('hr').map().once( async (enc_hr: string, _key: string) => {
 				const heartrate = await SEA.decrypt(enc_hr, trustor.roomkey);
 				if (!heartrate) {
 					console.log('could not retrieve data', heartrate);
