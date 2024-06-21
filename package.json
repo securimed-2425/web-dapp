@@ -43,6 +43,7 @@
     "@floating-ui/dom": "1.6.5",
     "gun": "^0.2020.1240",
     "highlight.js": "11.9.0",
+    "lucide-svelte": "^0.394.0",
     "uuid": "^9.0.1"
   }
 }

@@ -5,9 +5,14 @@
 		Table,
 		type PaginationSettings
 	} from '@skeletonlabs/skeleton';
-	import { db, user, username, trustorToView } from '$lib/gun-setup';
+	import { db, user, username, trustorToView, getUserData } from '$lib/gun-setup';
+	import SEA from 'gun/sea';
+	import { redirect } from '@sveltejs/kit';
+	import { writable } from 'svelte/store';
+	import type { Writable } from 'svelte/store';
 
 	initializeStores();
+	const sourceStore : Writable<any[][]> = writable([]);
 	let source: any[][] = [];
 	let paginationSettings = {
 		page: 0,
@@ -25,37 +30,49 @@
 		return dateB - dateA;
 	}
 
-	trustorToView.subscribe(async (data) => {
-		if (data) {
+	trustorToView.subscribe(async (data: {[key: string]: string}) => {
+		if (data && data.roomkey) {
 			trustor = data;
 			source = [];
 			db.user(trustor.pub).get('securimed').get('profile').on(( _profile ) => {
 				profile.firstname = _profile.firstname ?? '';
 				profile.lastname = _profile.lastname ?? '';
 			});
-			db.user(trustor.pub).get('securimed').get('rx').get('hr').map().once((heartrate: number, _key: string) => {
-				// records[_key] = heartrate;
-				const datetime = new Date(Number(_key));
-				source.push([
-					datetime.toLocaleDateString(undefined, {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					}),
-					datetime.toLocaleTimeString(),
-					heartrate
-				])
+			db.user(trustor.pub).get('securimed').get('rex').get('hr').map().once( async (enc_hr: string, _key: string) => {
+				const heartrate = await SEA.decrypt(enc_hr, trustor.roomkey);
+				if (!heartrate) {
+					console.log('could not retrieve data', heartrate);
+				} else {
+					const datetime = new Date(Number(_key));
+					source.push([
+						datetime.toLocaleDateString(undefined, {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
+						}),
+						datetime.toLocaleTimeString(),
+						heartrate
+					])
 
-				console.table( source );
+					// console.table( source );
+					sourceStore.set(source);
+					paginationSettings = {
+						page: 0,
+						limit: 5,
+						size: source.length,
+						amounts: [1, 2, 5, 10]
+					} satisfies PaginationSettings;
+				}
 			});
 		}
 	});
 
 	let tableHeaders: string[] = ['Date', 'Time', 'Heart Rate'];
-	$: paginatedSource = source.sort(customSort).slice(
+	$: paginatedSource = $sourceStore.sort(customSort).slice(
 		paginationSettings.page * paginationSettings.limit,
 		paginationSettings.page * paginationSettings.limit + paginationSettings.limit
 	);
+	// console.log( $sourceStore.length, $sourceStore );
 </script>
 
 <div class="container h-full mx-auto flex justify-start items-start">
@@ -67,7 +84,7 @@
 			Patient Info:
 			 {#if profile}{profile?.firstname ?? trustor.alias} {profile?.lastname}{/if}
 		</h2>
-		{#if source.length}
+		{#if $sourceStore.length}
 			<Table
 				source={{ head: tableHeaders, body: paginatedSource }}
 				regionBody="text-center"
@@ -76,7 +93,7 @@
 				element="table table-hover"
 			/>
 			<Paginator
-				bind:sources={source}
+				bind:sources={$sourceStore}
 				bind:settings={paginationSettings}
 				showFirstLastButtons={false}
 				showPreviousNextButtons={true}

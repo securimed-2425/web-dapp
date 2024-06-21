@@ -1,8 +1,8 @@
 <script lang="ts">
 	import '../../app.postcss';
-	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { username } from '$lib/gun-setup';
-
+	import { fly } from 'svelte/transition';
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import {
@@ -39,9 +39,25 @@
 		.filter((_, i, arr) => i === 0 || i === arr.length - 1)
 		.map((n) => n[0])
 		.join('');
+	const appName = 'SecuriMed';
+	let title = appName;
+	$: {
+		if ($page.url.pathname.startsWith('/')) {
+			let pathParts = $page.url.pathname.split('/');
+			title = pathParts[2]
+				? pathParts[2].charAt(0).toUpperCase() + pathParts[2].slice(1)
+				: 'Dashboard';
+		} else {
+			title = 'SecuriMed';
+		}
+		console.log(title);
+	}
 </script>
 
-<svelte:head>{@html '<script>(' + autoModeWatcher.toString() + ')();</script>'}</svelte:head>
+<svelte:head>
+	{@html '<script>(' + autoModeWatcher.toString() + ')();</script>'}
+	<title>{title}</title>
+</svelte:head>
 
 <Drawer>
 	<Navigation />
@@ -82,7 +98,6 @@
 	<svelte:fragment slot="sidebarLeft">
 		<Navigation />
 	</svelte:fragment>
-	<!-- TODO: add fly transition -->
 	<div class="container p-10 mx-auto">
 		<slot />
 	</div>

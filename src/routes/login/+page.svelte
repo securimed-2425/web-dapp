@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { initializeStores, Toast, getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
-	import { user } from '$lib/gun-setup';
+	import { user, scmroom } from '$lib/gun-setup';
+	import SEA from 'gun/sea';
 	import { goto } from '$app/navigation';
 
 	initializeStores();
@@ -28,13 +29,16 @@
 
 	const login = ( init = false ) => {
 		loading = true;
-		user.auth( username, password, ( { err }: { err: string } ) => {
+		user.auth( username, password, async ( { err }: { err: string } ) => {
 			loading = false;
 			if ( err ) {
 				toastCreate( err )
 			} else {
 				if ( init ) {
 					user.get('securimed').put( { profile: { firstname: '', lastname: '' }, rx: { hr: {}}, pr: {}, ac: {} } );
+					const keypair = await SEA.pair();
+					const enc_pair = await SEA.encrypt( keypair, user._.sea );
+					user.get( 'securimed' ).get( 'scmroom' ).get('hr').put( enc_pair );
 				}
 				goto( `/${username}` );
 			}
