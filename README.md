@@ -1,38 +1,48 @@
-# create-svelte
+# SecuriMed: Web Application
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Welcome to the documentation for running the SecuriMed web application locally. This guide will walk you through the steps needed to get the application up and running on your machine.
 
-## Creating a project
+## Prerequisites
 
-If you're seeing this, you've probably already done this step. Congrats!
+Before you begin, ensure you have the following installed on your system:
+
+- Git
+- Node.js (which includes npm)
+
+## Installation
+
+Follow these steps to install the application:
+
+1. **Clone the repository** into your target directory
+
+   ```bash
+   git clone <repository-url> <target-directory>
+   ```
+
+   Replace `<repository-url>` with actual URL of the SecuriMed repository and `<target-directory>` with the path where you want to clone the repository.
+
+2. **Navigate to the project directory**
+
+   ```bash
+   cd <target-directory>
+   ```
+
+3. **Install dependencies** using npm
+
+   ```bash
+   npm install
+   ```
+
+   This command installs all the necessary dependencies used to run the application.
+
+## Running the Application
+
+To run the application locally, use the following command:
 
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+npm run dev --open
 ```
 
-## Developing
+This automatically opens the web application in your default browser once it's ready.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+After running the application, it should automatically open in your default browser. If it doesn't or if you didn't use the `--open` flag, you can manually access the application by navigating to the URL provided in the terminal output, usually something like <http://localhost:5173>.
