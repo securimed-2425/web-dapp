@@ -41,9 +41,11 @@
   "type": "module",
   "dependencies": {
     "@floating-ui/dom": "1.6.5",
+    "@kuiper/svelte-scan-qrcode": "^0.0.5",
     "gun": "^0.2020.1240",
     "highlight.js": "11.9.0",
     "lucide-svelte": "^0.394.0",
+    "svelte-qrcode": "^1.0.1",
     "uuid": "^9.0.1"
   }
 }

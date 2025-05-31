@@ -13,6 +13,9 @@
 	import ModalTable from '$lib/components/ModalTable.svelte';
 	import SEA from 'gun/sea';
 	import { fly } from 'svelte/transition';
+	import { ScanQRCode } from "@kuiper/svelte-scan-qrcode";
+	import QrCode from "svelte-qrcode"
+
 	initializeStores();
 
 	const modalStore = getModalStore();
@@ -143,6 +146,9 @@
 		toastCreate('Public key copied!');
 	};
 
+	function _onResulted() {
+    }
+
 	$: heartrates = Object.entries(store).sort((a: any, b: any) => a[0] - b[0]);
 	// $: _trustees = Object.entries(trustees).sort(( a: any, b: any ) => a[0] - b[0] );
 </script>
@@ -185,6 +191,8 @@
 			<div class="ml-8 my-4">
 				<label class="label my-4">
 					<span>My Public Key</span>
+					<QrCode value={$usersea.pub} padding=7/>
+					
 					<input
 						class="input active:text-gray-400"
 						style="cursor: copy !important;"
@@ -194,6 +202,8 @@
 						readonly
 						on:click={copyPubKey}
 					/>
+
+					
 				</label>
 			</div>
 			<h3 class="h3">Trustees</h3>
@@ -204,7 +214,8 @@
 				</div>
 				<label class="label my-4">
 					<span>Add Public Key of Trustee to Grant Access</span>
-					<input class="input" type="text" placeholder="Public Key" bind:value={trusteeToAdd} />
+					<ScanQRCode bind:scanResult={trusteeToAdd} enableQRCodeReaderButton={true} options={{ onResulted: () => _onResulted() }} />
+					<input class="input" type="text" placeholder="or manually input Public Key" bind:value={trusteeToAdd} />
 				</label>
 				{#if adding}
 					<p class="h6">Adding...</p>

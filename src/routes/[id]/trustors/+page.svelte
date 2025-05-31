@@ -9,6 +9,8 @@
 	import SEA from 'gun/sea';
 	import { fly } from 'svelte/transition';
 
+	import { ScanQRCode } from "@kuiper/svelte-scan-qrcode";
+
 	initializeStores();
 	const toastStore = getToastStore();
 
@@ -158,14 +160,21 @@
 	<div class="space-y-5 w-full">
 		<h2 class="h2 pb-4 border-b border-b-white-200">Trustor</h2>
 		<label class="label my-4">
-			<span>Add Public Key of Trustor to View Records</span>
+			<div class="flex row gap-8"> 
+				<span>Add Public Key of Trustor to View Records</span> 
+			</div>
+			
+			<ScanQRCode bind:scanResult={trustorToAdd} enableQRCodeReaderButton={true} options={{ onResulted: () => _onResulted() }} />
 			<div class="flex row gap-8">
 				<input class="input" type="text" placeholder="Public Key" bind:value={trustorToAdd} />
+				<button class="btn variant-filled-secondary" on:click={addTrustor}> Add Trustor </button>
+				<!-- 
 				{#if adding}
 					<p class="h6">Adding...</p>
 				{:else}
 					<button class="btn variant-filled-secondary" on:click={addTrustor}> Add Trustor </button>
 				{/if}
+				 -->
 			</div>
 		</label>
 		{#if trustors && trustors.length !== 0}
