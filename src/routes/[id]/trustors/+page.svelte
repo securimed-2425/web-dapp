@@ -7,6 +7,7 @@
 	} from '@skeletonlabs/skeleton';
 	import { db, user, username, trustorToView, getUserEPub } from '$lib/gun-setup';
 	import SEA from 'gun/sea';
+	import 'gun/lib/path.js';
 	import { fly } from 'svelte/transition';
 
 	import { ScanQRCode } from "@kuiper/svelte-scan-qrcode";
@@ -52,10 +53,32 @@
 		};
 		toastStore.trigger(t);
 	}
+	function toastTrustorNonexistent(): void {
+		const t: ToastSettings = {
+			message: 'Trustor was not found!',
+			timeout: 2000,
+			autohide: true,
+			background: 'bg-red-500 '
+		};
+		toastStore.trigger(t);
+	}
+	function toastTrustorDeleted(): void {
+		const t: ToastSettings = {
+			message: 'Trustor deleted successfully!',
+			timeout: 2000,
+			autohide: true,
+			background: 'bg-gradient-to-tr from-primary-500 via-secondary-500 to-tertiary-500',
+			classes: 'border-4 border-primary-500'
+		};
+		toastStore.trigger(t);
+	}
 
 	let trustorToAdd: string;
+	let trustorToDel: string;
+	let trustorToDelPK: string;
 	let _trustors: { [key: string]: any } = {};
 	let adding: boolean = false;
+	let deleting: boolean = false;
 
 	user
 		.get('securimed')
@@ -63,7 +86,9 @@
 		.map()
 		.on(async (data: string) => {
 			const dec = await SEA.decrypt(data, user._.sea);
+			
 			const trustee = dec;
+			if (!trustee) return;
 			const { pubkey: pk, roomkey } = trustee;
 
 			let alias: string = '';
@@ -148,6 +173,22 @@
 		trustorToView.set({ alias: alias, pub: pk, roomkey: roomkey });
 	};
 
+	const delTrustor = async () => {
+		deleting = true;
+
+		const data: { [key: string]: string } = {};
+
+		user
+			.get('securimed')
+			.get('scmtrstr')
+			.path(trustorToDel)
+			.put(null)
+
+		toastTrustorDeleted();
+
+		deleting = false;
+	};
+
 	$: trustors = Object.entries(_trustors).sort((a: any, b: any) => a[0] - b[0]);
 	console.log('trustors', _trustors);
 </script>
@@ -164,7 +205,7 @@
 				<span>Add Public Key of Trustor to View Records</span> 
 			</div>
 			
-			<ScanQRCode bind:scanResult={trustorToAdd} enableQRCodeReaderButton={true} options={{ onResulted: () => _onResulted() }} />
+			<ScanQRCode bind:scanResult={trustorToAdd} enableQRCodeReaderButton={true} options={{ onResulted: () => void(0)}} />
 			<div class="flex row gap-8">
 				<input class="input" type="text" placeholder="Public Key" bind:value={trustorToAdd} />
 				<button class="btn variant-filled-secondary" on:click={addTrustor}> Add Trustor </button>
@@ -199,6 +240,15 @@
 											type="button"
 											on:click={() => setTrustor(trustor[0], trustor[1].pub, trustor[1].roomkey)}
 											class="btn btn-sm variant-filled">View Records</a
+										>
+										<button
+											on:click={()=>{
+												trustorToDel = trustor[0];
+												trustorToDelPK = trustor[1].pub;
+												console.log('You wanna kill', trustor[0]);
+												delTrustor();
+											}}
+											class="btn btn-sm variant-filled">Delete</button
 										>
 									</td>
 								</tr>
