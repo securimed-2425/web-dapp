@@ -42,9 +42,11 @@
   "dependencies": {
     "@floating-ui/dom": "1.6.5",
     "@kuiper/svelte-scan-qrcode": "^0.0.5",
+    "chart.js": "^4.4.9",
     "gun": "^0.2020.1240",
     "highlight.js": "11.9.0",
     "lucide-svelte": "^0.394.0",
+    "svelte-chartjs": "^3.1.5",
     "svelte-qrcode": "^1.0.1",
     "uuid": "^9.0.1"
   }

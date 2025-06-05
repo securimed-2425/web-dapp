@@ -2,7 +2,13 @@
 	import { user, getSCMRooms } from '$lib/gun-setup';
 	import SEA from 'gun/sea';
 	import { fly } from 'svelte/transition';
+	import { Line } from 'svelte-chartjs';
+	import 'chart.js/auto';
+
 	let store: { [key: number]: string } = {};
+
+	let test = user.get('securimed').get('rex').get('hr').map();
+	console.log(test);
 
 	user
 		.get('securimed')
@@ -12,9 +18,14 @@
 		.on(async (data: string, key: number) => {
 			const roompair = getSCMRooms();
 			const val = await SEA.decrypt(data, roompair);
-			store[key] = val;
+			// console.log('val', val);
+			if (val) {
+				store[key] = val;
+			}
 			console.log('data', key, data);
+			//console.log('decrypted data', val);		// for checking purposes
 		});
+
 	function formatDate(timestamp: string) {
 		const date = new Date(+timestamp);
 		return new Intl.DateTimeFormat('en-US', {
@@ -35,7 +46,25 @@
 			timeZone: 'Asia/Shanghai' // GMT+8 timezone
 		}).format(date);
 	}
-	$: heartrates = Object.entries(store).sort((a: any, b: any) => a[0] - b[0]);
+	console.log(store);
+	let heartrates: [string, string][];
+
+	$: {
+		// sort BPMs chronologically and filter out undefined values
+		heartrates = Object.entries(store).sort((a: any, b: any) => a[0] - b[0]).filter((elem) => elem[1]);
+		// console.log(heartrates);
+	}
+	
+	$: chartContent = {
+		labels: Object.values(heartrates).map(elem => elem[0]),
+		datasets: [{
+			label: 'BPM',
+			backgroundColor: 'rgba(225, 204,230, .3)',
+			data: Object.values(heartrates).map(elem => +elem[1])
+		},],
+	};
+	
+	
 </script>
 
 <div
@@ -45,6 +74,12 @@
 	<div class="space-y-5 w-full">
 		<h2 class="h2">Dashboard</h2>
 		<div class="table-container">
+			<!--
+			<div>
+				<Line {chartContent}/>
+			</div>
+			-->
+			
 			<!-- Native Table Element -->
 			<table class="table table-hover">
 				<thead>
@@ -67,3 +102,4 @@
 		</div>
 	</div>
 </div>
+
