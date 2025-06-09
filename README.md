@@ -4,6 +4,8 @@
 
 Welcome to the documentation for running the SecuriMed web application locally. This guide will walk you through the steps needed to get the application up and running on your machine.
 
+The SecuriMed web application is designed to fetch users' own heart rate data from the database stored through **Gun.js**. This is in part of the SecuriMed project, which aims to develop a decentralized data solution to healthcare data sharing and monitoring.
+
 ## ⚠ Branch Information
 
 The most recent stable branch is `qr-code`.
