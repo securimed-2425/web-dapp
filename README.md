@@ -1,6 +1,12 @@
 # SecuriMed: Web Application
 
+**Group Members:** Clarisse Bianca Bucu, Lance Raphael Bassig, Luis Patrick Dupalco
+
 Welcome to the documentation for running the SecuriMed web application locally. This guide will walk you through the steps needed to get the application up and running on your machine.
+
+## ⚠ Branch Information
+
+The most recent stable branch is `qr-code`.
 
 ## Prerequisites
 
